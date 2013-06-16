@@ -80,12 +80,8 @@ def generate_pagelist():
                         if page.lower().endswith('php'):
                             pagelist.add(page)
         elem.clear() # Discard the element to free memory
-
     pagelist = sorted(pagelist, key=lambda s: s.lower())    # Case insensitive sort
-    f = open(args.pagelist, "w")
-    for page in pagelist:
-        f.write(page + "\n")
-    out.good("Wrote " + str(len(pagelist)) + " words to " + args.pagelist)
+    write_output(pagelist, args.pagelist)
 
 def generate_wordlist():
     wordlist = set()
@@ -102,10 +98,13 @@ def generate_wordlist():
                     wordlist.add(word)
         elem.clear() # Discard the element to free memory
     wordlist = sorted(wordlist, key=lambda s: s.lower())    # Case insensitive sort
-    f = open(args.wordlist, "w")
-    for word in wordlist:
-        f.write(word + "\n")
-    out.good("Wrote " + str(len(wordlist)) + " words to " + args.wordlist)
+    write_output(wordlist, args.wordlist)
+
+def write_output(text, outfile, suffix=None):
+    f = open(outfile, "w")
+    for line in text:
+        f.write(line + "\n")
+    out.good("Wrote " + str(len(text)) + " lines to " + outfile)
 
 
 def get_args():
