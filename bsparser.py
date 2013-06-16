@@ -70,7 +70,7 @@ def generate_pagelist():
                     response = str(base64.b64decode(elem.text))
                 else:
                     response = str(elem.text)
-                pages = re.findall("href=[\'\"]([a-z0-9\-\.\\\/]+)", response, re.IGNORECASE)
+                pages = re.findall("(?:href|src|action)=[\'\"]([a-z0-9\-\.\\\/]+)", response, re.IGNORECASE)
                 for page in pages:
                     url = urlparse.urlsplit(page)
                     if url.netloc:
