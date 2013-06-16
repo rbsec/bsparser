@@ -9,7 +9,11 @@ import re
 import platform
 import os
 import sys
-import urlparse
+
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 try:    # Use faster C implementation if we can
     import xml.etree.cElementTree as ET
@@ -64,7 +68,7 @@ def generate_pagelist():
                 u = str(elem.text)
                 url = urlparse.urlsplit(u)
                 if url.path.lower().endswith('php'):
-                    pagelist.add(url.path)
+                    pagelist.add(url.path.lstrip('/'))
             if elem.tag == 'response':
                 if elem.attrib["base64"] == "true":
                     response = str(base64.b64decode(elem.text))
@@ -75,10 +79,10 @@ def generate_pagelist():
                     url = urlparse.urlsplit(page)
                     if url.netloc:
                         if url.path.lower().endswith('php'):
-                            pagelist.add(url.path)
+                            pagelist.add(url.path.lstrip('/'))
                     else:
                         if page.lower().endswith('php'):
-                            pagelist.add(page)
+                            pagelist.add(page.lstrip('/'))
         elem.clear() # Discard the element to free memory
     pagelist = sorted(pagelist, key=lambda s: s.lower())    # Case insensitive sort
     return pagelist
