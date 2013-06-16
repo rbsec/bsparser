@@ -56,6 +56,7 @@ class col:
 
 def generate_wordlist():
     wordlist = set()
+    out.verbose("Opening input file " + args.infile)
     for event, elem in ET.iterparse(args.infile):
         if event == 'end':
             if elem.tag == 'response':
@@ -71,11 +72,11 @@ def generate_wordlist():
     f = open(args.wordlist, "w")
     for word in wordlist:
         f.write(word + "\n")
-    print("Wrote " + str(len(wordlist)) + " words to " + args.wordlist)
+    out.good("Wrote " + str(len(wordlist)) + " words to " + args.wordlist)
 
 def get_args():
     global args
-    parser = argparse.ArgumentParser('dnscan.py', formatter_class=lambda prog:argparse.HelpFormatter(prog,max_help_position=40))
+    parser = argparse.ArgumentParser('bsparser.py', formatter_class=lambda prog:argparse.HelpFormatter(prog,max_help_position=40))
     parser.add_argument('-i', '--input', help='Input file', dest='infile', required=True)
     parser.add_argument('-v', '--verbose', action="store_true", default=False, help='Verbose', dest='verbose', required=False)
     parser.add_argument('-w', '--wordlist', help='Generate wordlist', dest='wordlist', required=False)
