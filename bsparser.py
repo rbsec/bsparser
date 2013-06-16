@@ -9,6 +9,7 @@ import re
 import platform
 import os
 import sys
+import urlparse
 
 try:    # Use faster C implementation if we can
     import xml.etree.cElementTree as ET
@@ -54,6 +55,32 @@ class col:
         brown = ""
         end = ""
 
+def generate_pagelist():
+    pagelist = set()
+    out.verbose("Opening input file " + args.infile)
+    for event, elem in ET.iterparse(args.infile):
+        if event == 'end':
+            if elem.tag == 'url':
+                u = str(elem.text)
+                url = urlparse.urlsplit(u)
+                if url.path.lower().endswith('php'):
+                    pagelist.add(url.path)
+#            if elem.tag == 'response':
+#                if elem.attrib["base64"] == "true":
+#                    response = str(base64.b64decode(elem.text))
+#                else:
+#                    response = str(elem.text)
+#                words = re.findall("[a-zA-Z0-9\-]+", response)
+#                for word in words:
+#                    wordlist.add(word)
+        elem.clear() # Discard the element to free memory
+
+    pagelist = sorted(pagelist, key=lambda s: s.lower())    # Case insensitive sort
+    f = open(args.pagelist, "w")
+    for page in pagelist:
+        f.write(page + "\n")
+    out.good("Wrote " + str(len(pagelist)) + " words to " + args.pagelist)
+
 def generate_wordlist():
     wordlist = set()
     out.verbose("Opening input file " + args.infile)
@@ -74,10 +101,12 @@ def generate_wordlist():
         f.write(word + "\n")
     out.good("Wrote " + str(len(wordlist)) + " words to " + args.wordlist)
 
+
 def get_args():
     global args
     parser = argparse.ArgumentParser('bsparser.py', formatter_class=lambda prog:argparse.HelpFormatter(prog,max_help_position=40))
     parser.add_argument('-i', '--input', help='Input file', dest='infile', required=True)
+    parser.add_argument('-p', '--pagelist', help='Generate pagelist', dest='pagelist', required=False)
     parser.add_argument('-v', '--verbose', action="store_true", default=False, help='Verbose', dest='verbose', required=False)
     parser.add_argument('-w', '--wordlist', help='Generate wordlist', dest='wordlist', required=False)
     args = parser.parse_args()
@@ -88,4 +117,6 @@ if __name__ == "__main__":
     get_args()
     if args.wordlist:
         generate_wordlist()
+    if args.pagelist:
+        generate_pagelist()
 
