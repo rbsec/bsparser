@@ -81,7 +81,7 @@ def generate_pagelist():
                             pagelist.add(page)
         elem.clear() # Discard the element to free memory
     pagelist = sorted(pagelist, key=lambda s: s.lower())    # Case insensitive sort
-    write_output(pagelist, args.pagelist)
+    return pagelist
 
 def generate_wordlist():
     wordlist = set()
@@ -98,12 +98,12 @@ def generate_wordlist():
                     wordlist.add(word)
         elem.clear() # Discard the element to free memory
     wordlist = sorted(wordlist, key=lambda s: s.lower())    # Case insensitive sort
-    write_output(wordlist, args.wordlist)
+    return wordlist
 
-def write_output(text, outfile, suffix=None):
+def write_output(text, outfile, suffix=""):
     f = open(outfile, "w")
     for line in text:
-        f.write(line + "\n")
+        f.write(line + suffix + "\n")
     out.good("Wrote " + str(len(text)) + " lines to " + outfile)
 
 
@@ -111,6 +111,7 @@ def get_args():
     global args
     parser = argparse.ArgumentParser('bsparser.py', formatter_class=lambda prog:argparse.HelpFormatter(prog,max_help_position=40))
     parser.add_argument('-i', '--input', help='Input file', dest='infile', required=True)
+    parser.add_argument('-n', '--nano-backup', action="store_true", default=False, help='Append ~ to filenames', dest='nano_backup', required=False)
     parser.add_argument('-p', '--pagelist', help='Generate pagelist', dest='pagelist', required=False)
     parser.add_argument('-v', '--verbose', action="store_true", default=False, help='Verbose', dest='verbose', required=False)
     parser.add_argument('-w', '--wordlist', help='Generate wordlist', dest='wordlist', required=False)
@@ -120,8 +121,14 @@ if __name__ == "__main__":
     global wildcard
     out = output()
     get_args()
-    if args.wordlist:
-        generate_wordlist()
-    if args.pagelist:
-        generate_pagelist()
 
+    if args.wordlist:
+        wordlist = generate_wordlist()
+        write_output(wordlist, args.wordlist)
+
+    if args.pagelist:
+        suffix = ""
+        pagelist = generate_pagelist()
+        if args.nano_backup:
+            suffix = "~"
+        write_output(pagelist, args.pagelist, suffix)
