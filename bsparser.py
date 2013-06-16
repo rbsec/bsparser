@@ -65,14 +65,20 @@ def generate_pagelist():
                 url = urlparse.urlsplit(u)
                 if url.path.lower().endswith('php'):
                     pagelist.add(url.path)
-#            if elem.tag == 'response':
-#                if elem.attrib["base64"] == "true":
-#                    response = str(base64.b64decode(elem.text))
-#                else:
-#                    response = str(elem.text)
-#                words = re.findall("[a-zA-Z0-9\-]+", response)
-#                for word in words:
-#                    wordlist.add(word)
+            if elem.tag == 'response':
+                if elem.attrib["base64"] == "true":
+                    response = str(base64.b64decode(elem.text))
+                else:
+                    response = str(elem.text)
+                pages = re.findall("href=[\'\"]([a-z0-9\-\.\\\/]+)", response, re.IGNORECASE)
+                for page in pages:
+                    url = urlparse.urlsplit(page)
+                    if url.netloc:
+                        if url.path.lower().endswith('php'):
+                            pagelist.add(url.path)
+                    else:
+                        if page.lower().endswith('php'):
+                            pagelist.add(page)
         elem.clear() # Discard the element to free memory
 
     pagelist = sorted(pagelist, key=lambda s: s.lower())    # Case insensitive sort
